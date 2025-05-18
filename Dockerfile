@@ -181,7 +181,7 @@ PRIVACYPOLICY= \
 DONATION_URL= \
 BIND_ADDRESS=[::]:7600 \
 CONTACT=https://sorvx.com \
-FOOTER_MESSAGE=powered by sorvx.
+FOOTER_MESSAGE=
 
 
 CMD ["run.sh"]
