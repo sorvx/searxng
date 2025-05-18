@@ -1,7 +1,7 @@
 # use alpine as base for searx and set workdir as well as env vars
 FROM docker.io/library/python:3.13-slim AS builder
 
-ENV UPSTREAM_COMMIT=1b08324f26bde0116d3263bd7177da8750f39712
+ENV UPSTREAM_COMMIT=86373e7c87aeca9fb0d8889a12cfe09c0ffd1df9
 
 # install build deps and git clone searxng as well as setting the version
 RUN apt-get update \
@@ -106,7 +106,7 @@ sed -i -e "/safe_search:/s/0/1/g" \
 -e "/autocomplete:/s/\"\"/\"google\"/g" \
 -e "/autocomplete_min:/s/4/0/g" \
 -e "/favicon_resolver:/s/\"\"/\"google\"/g" \
--e "/port:/s/8888/7600/g" \
+-e "/port:/s/8888/8080/g" \
 -e "/simple_style:/s/auto/macchiato/g" \
 -e "/infinite_scroll:/s/false/true/g" \
 -e "/query_in_title:/s/false/true/g" \
@@ -169,9 +169,9 @@ sed -i -e "/safe_search:/s/0/1/g" \
 searx/settings.yml;
 
 # expose port
-EXPOSE 7600
+EXPOSE 8080
 
-HEALTHCHECK CMD wget --quiet --tries=1 --spider http://localhost:7600/healthz || exit 1
+HEALTHCHECK CMD wget --quiet --tries=1 --spider http://localhost:8080/healthz || exit 1
 
 # set env
 ENV UWSGI_WORKERS=1 UWSGI_THREADS=16 IMAGE_PROXY=true PROXY= REDIS_URL= LIMITER= BASE_URL= CAPTCHA= AUTHORIZED_API= NAME= SEARCH_DEFAULT_LANG= SEARCH_ENGINE_ACCESS_DENIED= PUBLIC_INSTANCE= \
@@ -179,9 +179,8 @@ GOOGLE_DEFAULT=true BING_DEFAULT= BRAVE_DEFAULT= DUCKDUCKGO_DEFAULT= \
 OPENMETRICS= \
 PRIVACYPOLICY= \
 DONATION_URL= \
-BIND_ADDRESS=[::]:7600 \
-CONTACT=https://sorvx.com \
-FOOTER_MESSAGE=
-
+BIND_ADDRESS=[::]:8080 \
+CONTACT=https://sagarb.com \
+FOOTER_MESSAGE=sorvx
 
 CMD ["run.sh"]
