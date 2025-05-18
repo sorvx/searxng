@@ -3,6 +3,8 @@ FROM docker.io/library/python:3.13-slim AS builder
 
 ENV UPSTREAM_COMMIT=86373e7c87aeca9fb0d8889a12cfe09c0ffd1df9
 
+
+RUN chmod +x update.sh && ./update.sh
 # install build deps and git clone searxng as well as setting the version
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
