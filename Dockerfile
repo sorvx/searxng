@@ -106,7 +106,7 @@ sed -i -e "/safe_search:/s/0/1/g" \
 -e "/autocomplete:/s/\"\"/\"google\"/g" \
 -e "/autocomplete_min:/s/4/0/g" \
 -e "/favicon_resolver:/s/\"\"/\"google\"/g" \
--e "/port:/s/8888/8080/g" \
+-e "/port:/s/8888/7600/g" \
 -e "/simple_style:/s/auto/macchiato/g" \
 -e "/infinite_scroll:/s/false/true/g" \
 -e "/query_in_title:/s/false/true/g" \
@@ -169,9 +169,9 @@ sed -i -e "/safe_search:/s/0/1/g" \
 searx/settings.yml;
 
 # expose port
-EXPOSE 8080
+EXPOSE 7600
 
-HEALTHCHECK CMD wget --quiet --tries=1 --spider http://localhost:8080/healthz || exit 1
+HEALTHCHECK CMD wget --quiet --tries=1 --spider http://localhost:7600/healthz || exit 1
 
 # set env
 ENV UWSGI_WORKERS=1 UWSGI_THREADS=16 IMAGE_PROXY=true PROXY= REDIS_URL= LIMITER= BASE_URL= CAPTCHA= AUTHORIZED_API= NAME= SEARCH_DEFAULT_LANG= SEARCH_ENGINE_ACCESS_DENIED= PUBLIC_INSTANCE= \
@@ -179,9 +179,9 @@ GOOGLE_DEFAULT=true BING_DEFAULT= BRAVE_DEFAULT= DUCKDUCKGO_DEFAULT= \
 OPENMETRICS= \
 PRIVACYPOLICY= \
 DONATION_URL= \
-BIND_ADDRESS=[::]:8080 \
-CONTACT=https://vojk.au \
-FOOTER_MESSAGE= \
-ISSUE_URL=https://github.com/privau/searxng/issues GIT_URL=https://github.com/privau/searxng GIT_BRANCH=main
+BIND_ADDRESS=[::]:7600 \
+CONTACT=https://sorvx.com \
+FOOTER_MESSAGE=powered by sorvx.
+
 
 CMD ["run.sh"]
