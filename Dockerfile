@@ -108,7 +108,7 @@ sed -i -e "/safe_search:/s/0/1/g" \
 -e "/autocomplete:/s/\"\"/\"google\"/g" \
 -e "/autocomplete_min:/s/4/0/g" \
 -e "/favicon_resolver:/s/\"\"/\"google\"/g" \
--e "/port:/s/8888/8080/g" \
+-e "/port:/s/8888/7800/g" \
 -e "/simple_style:/s/auto/macchiato/g" \
 -e "/infinite_scroll:/s/false/true/g" \
 -e "/query_in_title:/s/false/true/g" \
@@ -170,9 +170,9 @@ sed -i -e "/safe_search:/s/0/1/g" \
 -e "/shortcut: fd/{n;s/.*/    disabled: false/}" \
 searx/settings.yml;
 # expose port
-EXPOSE 8080
+EXPOSE 7800
 
-HEALTHCHECK CMD wget --quiet --tries=1 --spider http://localhost:8080/healthz || exit 1
+HEALTHCHECK CMD wget --quiet --tries=1 --spider http://localhost:7800/healthz || exit 1
 
 # set env
 ENV UWSGI_WORKERS=1 UWSGI_THREADS=16 IMAGE_PROXY=true PROXY= REDIS_URL= LIMITER= BASE_URL= CAPTCHA= AUTHORIZED_API= NAME= SEARCH_DEFAULT_LANG= SEARCH_ENGINE_ACCESS_DENIED= PUBLIC_INSTANCE= \
@@ -180,7 +180,7 @@ GOOGLE_DEFAULT=true BING_DEFAULT= BRAVE_DEFAULT= DUCKDUCKGO_DEFAULT= \
 OPENMETRICS= \
 PRIVACYPOLICY= \
 DONATION_URL= \
-BIND_ADDRESS=[::]:8080 \
+BIND_ADDRESS=[::]:7800 \
 CONTACT=https://sagarb.com \
 FOOTER_MESSAGE=sorvx
 
