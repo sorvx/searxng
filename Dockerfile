@@ -169,7 +169,6 @@ sed -i -e "/safe_search:/s/0/1/g" \
 -e "/engine: startpage/s/$/\n    disabled: true/g" \
 -e "/shortcut: fd/{n;s/.*/    disabled: false/}" \
 searx/settings.yml;
-RUN chmod +x update.sh && ./update.sh
 # expose port
 EXPOSE 8080
 
