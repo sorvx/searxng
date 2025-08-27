@@ -50,7 +50,9 @@ WORKDIR /usr/local/searxng/
 
 RUN apk add --no-cache \
     # lxml (ARMv7)
-    libxslt
+    libxslt \
+    # healthcheck
+    wget
 
 COPY --chown=root:root --from=builder /tmp/.searxng.passwd /etc/passwd
 COPY --chown=root:root --from=builder /tmp/.searxng.group /etc/group
@@ -60,6 +62,9 @@ COPY --chown=searxng:searxng --from=builder /usr/local/searxng /usr/local/searxn
 COPY --chown=searxng:searxng ./src/run.sh /usr/local/bin/run.sh
 COPY --chown=searxng:searxng ./src/limiter.toml /etc/searxng/limiter.toml
 COPY --chown=searxng:searxng ./src/favicons.toml /etc/searxng/favicons.toml
+
+# make run.sh executable
+RUN chmod +x /usr/local/bin/run.sh
 
 # make our patches to searxng's code to allow for the custom theming
 RUN sed -i "/'simple_style': EnumStringSetting(/,/choices=\['', 'auto', 'light', 'dark', 'black'\]/s/choices=\['', 'auto', 'light', 'dark', 'black'\]/choices=\['', 'auto', 'light', 'dark', 'black', 'paulgo', 'latte', 'frappe', 'macchiato', 'mocha', 'kagi', 'brave', 'moa', 'night', 'dracula'\]/" searx/preferences.py \
@@ -81,7 +86,7 @@ RUN sed -i -e "/if output_format not in settings\\['search'\\]\\['formats'\\]:/a
 && sed -i "/return Response('', mimetype='text\/css')/a \\\\n@app.route('/<key>/search', methods=['GET', 'POST'])\\ndef search_key(key=None):\\n    from searx.auth import auth_search_key\\n    return auth_search_key(sxng_request, key)" searx/webapp.py \
 && sed -i "/3\. If the IP is not in either list, the request is not blocked\./a\\    from searx.auth import valid_api_key\\n    if (valid_api_key(sxng_request)):\\n        return None" searx/limiter.py
 
-# fix opensearch autocompleter (force method of autocompleter to use GET reuqests)
+# fix opensearch autocompleter (force method of autocompleter to use GET requests)
 RUN sed -i '/{% if autocomplete %}/,/{% endif %}/s|method="{{ opensearch_method }}"|method="GET"|g' searx/templates/simple/opensearch.xml
 
 # set default settings
@@ -107,7 +112,7 @@ RUN sed -i -e "/safe_search:/s/0/1/g" \
 -e "/static_use_hash:/s/false/true/g" \
 -e "s/    use_mobile_ui: false/    use_mobile_ui: true/g" \
 -e "/disabled: false/d" \
--e "/name: wikipedia/s/$/\n    disabled: true/g" \
+-e "/name: wikipedia/s/$/\n    disabled: false\n    timeout: 1.0/g" \
 -e "/name: wikidata/s/$/\n    disabled: true/g" \
 -e "/name: wikispecies/s/$/\n    disabled: true/g" \
 -e "/name: wikinews/s/$/\n    disabled: true/g" \
@@ -136,8 +141,8 @@ RUN sed -i -e "/safe_search:/s/0/1/g" \
 -e "/name: dictzone/s/$/\n    disabled: true/g" \
 -e "/name: baidu/s/$/\n    disabled: true/g" \
 -e "/name: lingva/s/$/\n    disabled: true/g" \
--e "/name: genius/s/$/\n    disabled: true/g" \ 
--e "/name: wallhaven/s/$/\n    disabled: true/g" \ 
+-e "/name: genius/s/$/\n    disabled: true/g" \
+-e "/name: wallhaven/s/$/\n    disabled: true/g" \
 -e "/name: artic/s/$/\n    disabled: true/g" \
 -e "/name: flickr/s/$/\n    disabled: true/g" \
 -e "/name: unsplash/s/$/\n    disabled: true/g" \
@@ -148,11 +153,14 @@ RUN sed -i -e "/safe_search:/s/0/1/g" \
 -e "/name: bing news/s/$/\n    disabled: true/g" \
 -e "/name: tineye/s/$/\n    disabled: true/g" \
 -e "/engine: startpage/s/$/\n    disabled: true/g" \
--e "/engine: wikipedia/s/$/\n    timeout: 1.0/g" \
 -e "/shortcut: fd/{n;s/.*/    disabled: false/}" \
 searx/settings.yml;
 
 EXPOSE 8080
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD wget --no-verbose --tries=1 --spider http://localhost:8080/healthz || exit 1
 
 # set env
 ENV GRANIAN_PROCESS_NAME="searxng" GRANIAN_INTERFACE="wsgi" GRANIAN_HOST="::" GRANIAN_PORT="8080" GRANIAN_WEBSOCKETS="false" GRANIAN_LOOP="uvloop" GRANIAN_BLOCKING_THREADS="1" GRANIAN_WORKERS_KILL_TIMEOUT="30" GRANIAN_BLOCKING_THREADS_IDLE_TIMEOUT="300" \
